@@ -71,6 +71,7 @@
                 }
                 const openingTimes = await response.json();
                 displayStatus(openingTimes);
+                hideError(); // Hide error message when data is loaded successfully
             } catch (error) {
                 displayError();
                 console.error("Error loading opening times:", error);
@@ -84,6 +85,11 @@
             document.getElementById('openingTimes').style.display = 'none'; // Hide opening times
             const errorElement = document.getElementById('error');
             errorElement.style.display = 'flex'; // Show error message
+        }
+
+        // Hide the error message
+        function hideError() {
+            document.getElementById('error').style.display = 'none'; // Hide error message
         }
 
         // Display status and opening times on the page
