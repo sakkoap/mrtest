@@ -138,14 +138,14 @@
 
             let openingTimesHTML = `<h2>Opening Times:</h2>`;
             openingTimesHTML += today
-                ? `<strong>Today ${getDayName(new Date(today.date))} ${formatDate(new Date(today.date))}:</strong> ${formatTime(timeToDecimal(today.opening))} - ${formatTime(
+                ? `<strong>Today - ${getDayName(new Date(today.date))} ${formatDate(new Date(today.date))}:</strong> ${formatTime(timeToDecimal(today.opening))} - ${formatTime(
                       today.closing === "24:00" ? 23.99 : timeToDecimal(today.closing)
-                  )} - <span class="status-text">${today.status}</span><br>`
+                  )}<br>`
                 : `<strong>Today:</strong> No data available.<br>`;
             openingTimesHTML += tomorrow
-                ? `<strong>Tomorrow ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> ${formatTime(timeToDecimal(tomorrow.opening))} - ${formatTime(
+                ? `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> ${formatTime(timeToDecimal(tomorrow.opening))} - ${formatTime(
                       timeToDecimal(tomorrow.closing)
-                  )} - <span class="status-text">${tomorrow.status}</span>`
+                  )}`
                 : `<strong>Tomorrow:</strong> No data available.`;
 
             document.getElementById('openingTimes').innerHTML = openingTimesHTML;
