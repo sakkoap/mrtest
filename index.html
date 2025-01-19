@@ -79,8 +79,11 @@
 
         // Display error message
         function displayError() {
-            document.body.innerHTML = ''; // Clear all content
-            document.getElementById('error').style.display = 'flex'; // Show error message
+            document.body.style.backgroundColor = 'black'; // Set background to black
+            document.getElementById('status').style.display = 'none'; // Hide status
+            document.getElementById('openingTimes').style.display = 'none'; // Hide opening times
+            const errorElement = document.getElementById('error');
+            errorElement.style.display = 'flex'; // Show error message
         }
 
         // Display status and opening times on the page
