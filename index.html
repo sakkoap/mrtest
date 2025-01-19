@@ -29,24 +29,36 @@
         .status-text {
             color: white;
         }
+        .error {
+            display: none;
+            background-color: black;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
     <div id="status">Loading...</div>
     <div id="openingTimes"></div>
+    <div id="error" class="error">I am broken :-( please check later</div>
 
     <script>
         // Format decimal hour to HH:MM
         function formatTime(hour) {
             const h = Math.floor(hour);
             const m = Math.round((hour - h) * 60);
-            return `${h}:${m < 10 ? '0' + m : m}`; // Format time like "10:30"
+            return `${h}:${m < 10 ? '0' + m : m}`;
         }
 
         // Format date as DD-MM
         function formatDate(date) {
             const day = date.getDate();
-            const month = date.getMonth() + 1; // Months are 0-based
+            const month = date.getMonth() + 1;
             return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}`;
         }
 
@@ -60,30 +72,34 @@
                 const openingTimes = await response.json();
                 displayStatus(openingTimes);
             } catch (error) {
-                document.getElementById('status').textContent = 'Error loading data!';
+                displayError();
+                console.error("Error loading opening times:", error);
             }
+        }
+
+        // Display error message
+        function displayError() {
+            document.body.innerHTML = ''; // Clear all content
+            document.getElementById('error').style.display = 'flex'; // Show error message
         }
 
         // Display status and opening times on the page
         function displayStatus(openingTimes) {
             const now = new Date();
             const currentTimeDecimal = now.getHours() + now.getMinutes() / 60;
-            const todayDate = now.toISOString().split('T')[0]; // Format: yyyy-mm-dd
-            const tomorrowDate = new Date(now.getTime() + 86400000).toISOString().split('T')[0]; // Add 1 day
+            const todayDate = now.toISOString().split('T')[0];
+            const tomorrowDate = new Date(now.getTime() + 86400000).toISOString().split('T')[0];
 
-            // Find today's and tomorrow's opening data
             const today = openingTimes.find(entry => entry.date === todayDate);
             const tomorrow = openingTimes.find(entry => entry.date === tomorrowDate);
 
             let statusMessage = 'Closed :-(';
             let bgColor = 'red';
 
-            // If there's opening data for today
             if (today) {
                 const todayOpeningDecimal = timeToDecimal(today.opening);
-                const todayClosingDecimal = today.closing === "24:00" ? 23.99 : timeToDecimal(today.closing); // Handle 24:00 correctly
+                const todayClosingDecimal = today.closing === "24:00" ? 23.99 : timeToDecimal(today.closing);
 
-                // If current time is within today's opening hours or if past the closing time for today
                 if (
                     today.status === 'Open' &&
                     currentTimeDecimal >= todayOpeningDecimal &&
@@ -97,11 +113,9 @@
                 }
             }
 
-            // Update the background color and status message
             document.body.style.backgroundColor = bgColor;
             document.getElementById('status').textContent = statusMessage;
 
-            // Display opening times for today and tomorrow
             let openingTimesHTML = `<h2>Opening Times:</h2>`;
             openingTimesHTML += today
                 ? `<strong>Today ${formatDate(new Date(today.date))}:</strong> ${formatTime(timeToDecimal(today.opening))} - ${formatTime(
@@ -117,7 +131,6 @@
             document.getElementById('openingTimes').innerHTML = openingTimesHTML;
         }
 
-        // Convert time to decimal hours (e.g., "10:30" -> 10.5)
         function timeToDecimal(time) {
             if (typeof time === 'string') {
                 const [hours, minutes] = time.split(':').map(Number);
