@@ -130,7 +130,8 @@
                 } else if (today.status === 'Closed') {
                     statusMessage = 'Closed :-(';
                     bgColor = 'red';
-                } else if (today.status === 'Maybe') {
+                } else {
+                    // For any other status, display ?
                     statusMessage = 'Maybe :-?';
                     bgColor = 'yellow';
                 }
@@ -154,9 +155,11 @@
                     ? `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> Closed<br>`
                     : tomorrow.status === 'Maybe'
                     ? `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> ?<br>`
-                    : `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> ${formatTime(timeToDecimal(tomorrow.opening))} - ${formatTime(
+                    : tomorrow.status === 'Open'
+                    ? `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> ${formatTime(timeToDecimal(tomorrow.opening))} - ${formatTime(
                           timeToDecimal(tomorrow.closing)
-                      )}`;
+                      )}`
+                    : `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> ?<br>`;
             }
 
             document.getElementById('openingTimes').innerHTML = openingTimesHTML;
