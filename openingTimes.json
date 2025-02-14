@@ -2,9 +2,12 @@
   {
     "date": "2025-02-14",
     "periods": [
-      
+     {
+        "opening": "10:00",
+        "closing": "24:00"
+      } 
     ],
-    "status": "Closed"
+    "status": "Maybe"
   },
   {
     "date": "2025-02-15",
