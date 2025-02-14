@@ -4,10 +4,10 @@
     "periods": [
       {
         "opening": "10:00",
-        "closing": "10:30"
+        "closing": "13:00"
       }
     ],
-    "status": "Open"
+    "status": "Closed"
   },
   {
     "date": "2025-02-15",
