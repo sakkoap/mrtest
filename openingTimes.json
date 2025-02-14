@@ -2,10 +2,7 @@
   {
     "date": "2025-02-14",
     "periods": [
-      {
-        "opening": "10:00",
-        "closing": "13:00"
-      }
+      
     ],
     "status": "Closed"
   },
