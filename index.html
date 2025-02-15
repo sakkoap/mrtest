@@ -53,23 +53,27 @@
     </div>
 
     <script>
+        // Format decimal hour to HH:MM
         function formatTime(hour) {
             const h = Math.floor(hour);
             const m = Math.round((hour - h) * 60);
             return `${h}:${m < 10 ? '0' + m : m}`;
         }
 
+        // Format date as DD-MM
         function formatDate(date) {
             const day = date.getDate();
             const month = date.getMonth() + 1;
             return `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}`;
         }
 
+        // Get the full day name (e.g., Monday, Sunday)
         function getDayName(date) {
             const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             return daysOfWeek[date.getDay()];
         }
 
+        // Fetch opening times from JSON file with cache-busting
         async function loadOpeningTimes() {
             try {
                 const response = await fetch('openingTimes.json?v=' + new Date().getTime());
@@ -78,44 +82,80 @@
                 }
                 const openingTimes = await response.json();
                 displayStatus(openingTimes);
-                hideError();
+                hideError(); // Hide error message when data is loaded successfully
             } catch (error) {
                 displayError();
                 console.error("Error loading opening times:", error);
             }
         }
 
+        // Display error message
         function displayError() {
-            document.body.style.backgroundColor = 'black';
-            document.getElementById('status').style.display = 'none';
-            document.getElementById('openingTimes').style.display = 'none';
-            document.getElementById('error').style.display = 'flex';
+            document.body.style.backgroundColor = 'black'; // Set background to black
+            document.getElementById('status').style.display = 'none'; // Hide status
+            document.getElementById('openingTimes').style.display = 'none'; // Hide opening times
+            const errorElement = document.getElementById('error');
+            errorElement.style.display = 'flex'; // Show error message
         }
 
+        // Hide the error message
         function hideError() {
-            document.getElementById('error').style.display = 'none';
+            document.getElementById('error').style.display = 'none'; // Hide error message
         }
 
+        // Display the status and opening times
         function displayStatus(openingTimes) {
             const now = new Date();
+            const currentTimeDecimal = now.getHours() + now.getMinutes() / 60;
             const todayDate = now.toISOString().split('T')[0];
+            const tomorrowDate = new Date(now.getTime() + 86400000).toISOString().split('T')[0];
+
             const today = openingTimes.find(entry => entry.date === todayDate);
-            
+            const tomorrow = openingTimes.find(entry => entry.date === tomorrowDate);
+
             let statusMessage = 'Closed :-(';
             let bgColor = 'red';
 
-            if (today) {
-                if (today.status === 'Open' && today.periods) {
+            if (today && today.status === 'Open' && today.periods) {
+                const isOpenNow = today.periods.some(period => {
+                    const opening = timeToDecimal(period.opening);
+                    const closing = period.closing === "24:00" ? 23.99 : timeToDecimal(period.closing);
+                    return currentTimeDecimal >= opening && currentTimeDecimal < closing;
+                });
+
+                if (isOpenNow) {
                     statusMessage = 'Open :-)';
                     bgColor = 'green';
-                } else if (today.status === 'Maybe') {
-                    statusMessage = 'Maybe :-|';
-                    bgColor = 'orange';
                 }
             }
 
             document.body.style.backgroundColor = bgColor;
             document.getElementById('status').textContent = statusMessage;
+
+            let openingTimesHTML = `<h2>Opening Times:</h2>`;
+
+            // Display today's opening periods
+            if (today && today.periods) {
+                openingTimesHTML += `<strong>Today - ${getDayName(new Date(today.date))} ${formatDate(new Date(today.date))}:</strong> `;
+                openingTimesHTML += today.periods.map(period => `${formatTime(timeToDecimal(period.opening))} - ${formatTime(timeToDecimal(period.closing))}`).join(', ') + '<br>';
+            }
+
+            // Display tomorrow's opening periods
+            if (tomorrow && tomorrow.periods) {
+                openingTimesHTML += `<strong>Tomorrow - ${getDayName(new Date(tomorrow.date))} ${formatDate(new Date(tomorrow.date))}:</strong> `;
+                openingTimesHTML += tomorrow.periods.map(period => `${formatTime(timeToDecimal(period.opening))} - ${formatTime(timeToDecimal(period.closing))}`).join(', ') + '<br>';
+            }
+
+            document.getElementById('openingTimes').innerHTML = openingTimesHTML;
+        }
+
+        // Convert time in HH:MM format to decimal
+        function timeToDecimal(time) {
+            if (typeof time === 'string') {
+                const [hours, minutes] = time.split(':').map(Number);
+                return hours + (minutes / 60);
+            }
+            return 0;
         }
 
         loadOpeningTimes();
